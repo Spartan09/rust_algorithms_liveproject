@@ -1,19 +1,73 @@
-use std::{
-    io::{self, Write},
-    time::{SystemTime, UNIX_EPOCH},
-};
+use std::{fmt, io::{self, Write}, time::{SystemTime, UNIX_EPOCH}};
 
-pub fn check_sorted(vec: &Vec<i32>) {
-    for i in 1..vec.len() {
-        if vec[i - 1] > vec[i] {
-            println!("vector is not sorted!");
+//*************************
+//*** The Customer struct *
+//*************************
+#[derive(Default, Clone)]
+pub struct Customer {
+    pub id: String,
+    pub num_purchases: i32,
+}
+impl fmt::Display for Customer {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "({}, {})", self.id, self.num_purchases)
+    }
+}
+
+
+// Make a vector containing pseudorandom
+// customers with num_purchases in [0, max).
+// The ith customer has id C<i> as in C103.
+pub fn make_random_vec(num_items: i32, max: i32) -> Vec<Customer> {
+    // Prepare a Prng.
+    let mut prng = Prng::new();
+
+    let mut customers: Vec<Customer> = Vec::with_capacity(num_items as usize);
+    for i in 0..num_items {
+        let id = format!("C{i}");
+        let num_purchases = prng.next_i32(0, max);
+        let customer = Customer { id, num_purchases };
+        customers.push(customer);
+    }
+    return customers;
+}
+
+// Print at most num_items items.
+pub fn print_vec(vec: &Vec<Customer>, num_items: i32) {
+    let mut max = vec.len();
+    if max > num_items as usize {
+        max = num_items as usize;
+    }
+
+    let mut string = String::new();
+    string.push_str("[");
+
+    if max > 0usize {
+        string.push_str(&vec[0].to_string());
+    }
+
+    for i in 1usize..max {
+        string.push_str(" ");
+        string.push_str(&vec[i].to_string());
+    }
+    string.push_str("]");
+    println!("{string}");
+}
+
+// Verify that the Vec is sorted.
+pub fn check_sorted(vec: &Vec<Customer>) {
+    for i in 1usize..vec.len() {
+        if vec[i - 1].num_purchases > vec[i].num_purchases {
+            println!("The vector is NOT sorted!");
             return;
         }
     }
-    println!("vector is sorted!")
+    println!("The vector is sorted!");
 }
 
-// ...
+// *****************
+// *** Utilities ***
+// *****************
 // Prompt the user for an i32.
 pub fn get_i32(prompt: &str) -> i32 {
     print!("{prompt}");
@@ -25,7 +79,8 @@ pub fn get_i32(prompt: &str) -> i32 {
         .expect("Error reading input");
 
     let trimmed = str_value.trim();
-    return trimmed.parse::<i32>().expect("Error parsing integer");
+    return trimmed.parse::<i32>()
+        .expect("Error parsing integer");
 }
 
 // ************
@@ -36,7 +91,7 @@ pub struct Prng {
 }
 
 impl Prng {
-    fn new() -> Self {
+    pub fn new() -> Self {
         let mut prng = Self { seed: 0 };
         prng.randomize();
         return prng;
@@ -69,38 +124,4 @@ impl Prng {
         let result = min as f64 + range * self.next_f64();
         return result as i32;
     }
-}
-
-// Make a vector of random i32 values in the range [0 and max).
-pub fn make_random_vec(num_items: i32, max: i32) -> Vec<i32> {
-    // Prepare a Prng.
-    let mut prng = Prng::new();
-
-    let mut vec: Vec<i32> = Vec::with_capacity(num_items as usize);
-    for _ in 0..num_items {
-        vec.push(prng.next_i32(0, max));
-    }
-    return vec;
-}
-
-// Print at most num_items items.
-pub fn print_vec(vec: &Vec<i32>, num_items: i32) {
-    let mut max = vec.len();
-    if max > num_items as usize {
-        max = num_items as usize;
-    }
-
-    let mut string = String::new();
-    string.push_str("[");
-
-    if max > 0usize {
-        string.push_str(&vec[0].to_string());
-    }
-
-    for i in 1usize..max {
-        string.push_str(" ");
-        string.push_str(&vec[i].to_string());
-    }
-    string.push_str("]");
-    println!("{string}");
 }

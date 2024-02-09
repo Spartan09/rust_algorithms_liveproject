@@ -1,20 +1,26 @@
 
 mod bubble_sort;
 mod quick_sort;
-mod core; // If you decide to use a separate module for core functions and structs
+mod core;
+mod count_sort; // If you decide to use a separate module for core functions and structs
 
 use core::{get_i32, make_random_vec, print_vec, check_sorted}; // Adjust path based on your structure
 
 fn main() {
-    let items = get_i32("# Items: ");
-    let max = get_i32("max: ");
+    // Get the number of items and max value.
+    let num_items = get_i32("# Items: ");
+    let max = get_i32("Max: ");
 
-    let mut vec = make_random_vec(items, max);
-    print_vec(&vec, 40);
+    // Make and display the unsorted vector.
+    let mut customers = make_random_vec(num_items, max);
+    print_vec(&customers, 20);
+    println!();
 
-    // Example of using bubble_sort
-    quick_sort::sort(&mut vec); // Assuming your bubble_sort module exposes a function named `sort`
-    print_vec(&vec, 40);
-    check_sorted(&vec);
+    // Sort and display the result.
+    customers = count_sort::sort(&mut customers[..], max);
+    print_vec(&customers, 20);
+
+    // Verify that it's sorted.
+    check_sorted(&customers);
 }
 
